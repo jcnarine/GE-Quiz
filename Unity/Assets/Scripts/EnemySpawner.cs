@@ -4,10 +4,15 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 
+
+//Added Code 
+using System;
+using System.Runtime.InteropServices;
+/// <
 public class EnemySpawner : MonoBehaviour
 	{
 	public float min__X = -1056f, max__X = 1056;
-	public int min_Size = 15, max_Size = 30;
+	public int min, max;
 
 	public Projectile asteroidPrefab;
 	public GameObject enemyPrefab;
@@ -17,6 +22,14 @@ public class EnemySpawner : MonoBehaviour
 	public float spawnTimer; 
 	public float waveTimer;
 	public int wave = 1;
+
+	public bool useDLL=false;
+
+	[DllImport("RandomNumber")]
+	private static extern int RandomNumber(int min, int max);
+
+	[DllImport("SameNumber")]
+	private static extern int sameNumber();
 
 	// Start is called before the first frame update
 	void Start()
@@ -31,6 +44,12 @@ public class EnemySpawner : MonoBehaviour
 
 		}
 
+	public void changeDLL() 
+		{
+		useDLL = !useDLL;
+		}
+
+
 	void nextWave()
 		{
 		if (wave < 5)
@@ -44,17 +63,27 @@ public class EnemySpawner : MonoBehaviour
 	void SpawnEnemies()
 		{
 
-		float pos__X = Random.Range(min__X, max__X);
+		float pos__X = UnityEngine.Random.Range(min__X, max__X);
 
 
 		Vector3 spawnLocation = transform.position;
 
 		spawnLocation.x = pos__X;
 
-		if (Random.Range(0, 2) > 0)
+		if (UnityEngine.Random.Range(0, 2) > 0)
 			{
 			Projectile asteroid = Instantiate(asteroidPrefab, spawnLocation, Quaternion.identity);
-			int randomScale = Random.Range(min_Size, max_Size);
+
+			int randomScale;
+
+			if (useDLL) 
+				{ 
+				 randomScale = RandomNumber(max, min); 
+				} 
+			else { 
+				 randomScale = sameNumber(); 
+				}
+
 			asteroid.transform.localScale = new Vector3(randomScale, randomScale, randomScale);
 			Invoke("SpawnEnemies", spawnTimer);
 			}
